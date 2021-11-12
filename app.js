@@ -2,16 +2,17 @@
 require('dotenv').config();
 const Web3 = require("web3")
 const axios = require('axios');
-//const request = require("request");
 //const fs = require('fs')
-
-//init express server
-const express = require("express");
-//const bodyParser = require("body-parser");
 
 // .env variables
 const API_KEY = process.env.etherscanKey;
 const INFURA_KEY = process.env.infuraKey;
+
+/**
+//init express server
+const express = require("express");
+const bodyParser = require("body-parser");
+//const request = require("request");
 
 // run express and body-parser
 const app = express();
@@ -32,6 +33,7 @@ app.use(express.static("public"));
     app.listen(1503, function(){
       console.log("Server has started on Port 1503.");
     });
+// end server */
 
 // create arrays to store block header data
 var numArray = [];
