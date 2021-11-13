@@ -11,6 +11,7 @@ const INFURA_KEY = process.env.infuraKey;
 var web3 = new Web3('wss://mainnet.infura.io/ws/v3/' + INFURA_KEY);
 
 // create arrays to store data
+var numArray = [];
 var txArray = [];
 var txHashArray = [];
 
