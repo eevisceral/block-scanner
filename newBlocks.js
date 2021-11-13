@@ -40,15 +40,15 @@ app.use(express.static("public"));
         // fires on all new blocks
         .on("data", function (blockHeadData) {
 
-            // store useful block header data
-            blockNum = blockHeadData.number;
-            blockTime = blockHeadData.timestamp;
-            blockHash = blockHeadData.hash;
-
-            // push data to arrays without duplicates
-            if (numArray.includes(blockNum) === false) numArray.push(blockNum);
-            if (timeArray.includes(blockTime) === false) timeArray.push(blockTime);
-            if (hashArray.includes(blockHash) === false) hashArray.push(blockHash);
+            // // store useful block header data
+            // blockNum = blockHeadData.number;
+            // blockTime = blockHeadData.timestamp;
+            // blockHash = blockHeadData.hash;
+            //
+            // // push data to arrays without duplicates
+            // if (numArray.includes(blockNum) === false) numArray.push(blockNum);
+            // if (timeArray.includes(blockTime) === false) timeArray.push(blockTime);
+            // if (hashArray.includes(blockHash) === false) hashArray.push(blockHash);
               // console.log("Block Number Array:");
               // console.log(numArray);
               // console.log("Datetime Array:");
@@ -59,34 +59,37 @@ app.use(express.static("public"));
         //   for (let i = 1; i < 10; i++) {
 
         // getBlock function
-        web3.eth.getBlock('latest')
+        web3.eth.getBlock('latest', true)
         .then(function (blockData) {
-          //console.log(blockData);
-
             // create array of txs within block
             txArray = blockData.transactions;
-            // n = txArray.length - 1;
               // console.log("Intrablock Transaction Array: ");
               // console.log(txArray);
 
             // get latest block number from data
             latestBlock = blockData.number;
-              // console.log("Latest Block Number: " + latestBlock);
+              console.log("Latest Block Number: " + latestBlock);
 
 
         // function to count number of transactions in block
-        web3.eth.getBlockTransactionCount('latest')
+        web3.eth.getBlockTransactionCount(latestBlock)
         .then(function (txCount) {
-
             console.log("Total Txs in Block: " + txCount);
 
+
+
+
         //get transaction info from latest block
-        web3.eth.getTransactionFromBlock('latest', 2)
+        web3.eth.getTransactionFromBlock(latestBlock, 2)
         .then(function (txFromBlock) {
 
+          // loop for entire length of block's transcation count
+          for(var t = 0; t <= txCount - 1; t++) {
+            
             // console.log(txFromBlock);
             latestBlockNum = txFromBlock.blockNumber
             txHash = txFromBlock.hash
+            console.log("Block Number " + latestBlock)
             console.log("Transaction Info from Block Number " + latestBlockNum)
             // console.log("Transaction Hash: " + txHash);
 
@@ -98,15 +101,25 @@ app.use(express.static("public"));
 
 
         // get latest tx receipt from transcation hash
-        web3.eth.getTransactionReceipt(txHash)
-        .then(function (txReceipt) {
+        web3.eth.getTransactionReceipt(txHash, (error, receipt) => {
+          if (error) {
+            reject(error);
+          } else if (receipt == null) {
+            setTimeout(
+              () => asyncTxReceipt(resolve, reject),
+              interval ? interval : 500);
+          } else {
+            console.log(receipt);
 
-            conAddr = txReceipt.contractAddress;
-            console.log("Analyzing Tx Receipt for " + txReceipt.contractAddress);
+          }
+        })
+        .then(function (analyzeTxReceipt) {
+
+            conAddr = getTransactionReceipt.contractAddress;
+            console.log("Analyzing Tx Receipt for " + conAddr);
             console.log('\n');
 
-            // loop for entire length of block's transcation count
-            for(var t = 0; t <= txCount - 1; t++) {
+
 
               if(web3.utils.isAddress(conAddr)) {
 
@@ -128,17 +141,18 @@ app.use(express.static("public"));
               else {
 
                 console.log(t + ". " + conAddr + " is not a contract address.");
-                //return
+                return
 
               }
 
-            }
+            //}
 
 
         });
 
+      }
 
-      })
+    })
 
       .catch((err) => {
 
