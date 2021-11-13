@@ -88,16 +88,26 @@
     }) // end of web3.eth.logs subscription
 
 
+
   function getABI(conDetails) {
       const smartAddr = conDetails;
+      // const smartAddr = process.env.testADDR;
+
+      if(!web3.utils.isAddress(smartAddr)){
+        console.log("Not a valid smart contract address.")
+        return
+      }
 
       // call etherscan API
       axios.get("https://api.etherscan.io/api?module=contract&action=getabi&address="
       + smartAddr + "&apikey=" + API_KEY).then(response => {
+        var result = response.data.result;
 
-        // parse json response
-        var contractABI = "";
-        contractABI = JSON.parse(response.data.result);
+        // if source code is verified, parse JSON
+        if(result != "Contract source code not verified"){
+          var contractABI = "";
+          contractABI = JSON.parse(response.data.result);
+
 
         // if contractABI is not null, execute
         if (contractABI != '') {
@@ -128,16 +138,18 @@
           });
 
           // // get past transfer events from contract
-          // contract.getPastEvents('Transfer', {fromBlock: 13589400, toBlock: 'latest'},
+          // contract.getPastEvents('Transfer', {
+          // fromBlock: 13589400,
+          // toBlock: 'latest'},
           //   (err, events) => { console.log(events) })
 
           }
-
-            // else, address does not have verified contract
-            else {
-                console.log("No ABI for " + smartAddr + " yet.");
-                //start;
-            }
+        }
+          // else, address does not have verified contract
+          else {
+            console.log("No ABI for " + smartAddr + " yet.");
+            return
+          }
 
           }); // end of axios get request
 
