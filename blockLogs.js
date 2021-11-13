@@ -13,7 +13,7 @@
   const app = express();
   app.use(express.static("public"));
 
-  // create arrays to store data
+  // arrays to store data
   var numArray = [];
   var txArray = [];
   var addrArray = [];
@@ -23,7 +23,6 @@
   app.get("/", function(req, res){
     res.sendFile(__dirname + "/index.html");
 
-
     // subscribe to block logs
     const subs = web3.eth.subscribe('logs', {
        // fromBlock: '13606200',
@@ -32,15 +31,17 @@
       if (error) console.log("There was an error when subscribing to web3.");
     })
 
-    // fires once when successfully subscribed
+    // fires once on sucessful subscription
     .on("connected", function(subscriptionId){
-        console.log("Subscription ID: " + subscriptionId);
+        console.log("ID: " + subscriptionId);
+        console.log("\n");
+        console.log("Scanning all incoming transactions...");
+        console.log("\n");
     })
 
-    // collect data
+    // collect data from logs
     .on("data", async (txData) => {
       try {
-        //console.log(data);
         var txHash = txData.transactionHash;
         var blockNum = txData.blockNumber;
         var addr = txData.address;
@@ -50,17 +51,18 @@
         if (numArray.includes(blockNum) === false) numArray.push(blockNum);
         if (addrArray.includes(addr) === false) addrArray.push(addr);
 
-        // get txReceipt to identify contract address, to and from addresses
+        // get transaction receipt for latest tx
         var b = (txArray.length - 1);
         var txReceipt = await web3.eth.getTransactionReceipt(txArray[b]);
         // console.log(txReceipt);
 
-         // check all txs for contract ABIs
+         // check all transactions for smart contracts
          var txFrom = txReceipt.from;
          var txTo = txReceipt.to;
          var ADDRESS = txReceipt.contractAddress;
          //console.log(txReceipt.transactionHash);
 
+         // if smart contract, call getABI function
          if(web3.utils.isAddress(ADDRESS)) {
            var contractADDR = ADDRESS;
            console.log(b + ". Proceeding to get contract ABI for: " + ADDRESS);
@@ -79,17 +81,17 @@
 
       }
       catch (error) {
-        console.log(error);
+        console.log("Error caught.");
       }
 
 
     }) // end of web3.eth.logs subscription
 
 
-
   function getABI(conDetails) {
       const smartAddr = conDetails;
 
+      // call etherscan API
       axios.get("https://api.etherscan.io/api?module=contract&action=getabi&address="
       + smartAddr + "&apikey=" + API_KEY).then(response => {
 
@@ -100,10 +102,10 @@
         // if contractABI is not null, execute
         if (contractABI != '') {
 
-          // print ABI to reveal functions, events and other data we can analyze
-          // console.log(contractABI)
+          // print ABI to reveal unique functions, events, etc.
+          // console.log(contractABI);
 
-          // get contractDetails from contractABI + smartAddr
+          // get contract details
           const contractDetails = new web3.eth.Contract(contractABI, smartAddr)
           // console.log(contractDetails);
 
@@ -119,19 +121,19 @@
               console.log("Ticker: " + result)
           });
 
-          // get totalSupply for given contract
+          // get total token supply for given contract
           contractDetails.methods.totalSupply().call({ from: smartAddr },
             function (error, result) {
               console.log("Total Supply: " + result)
           });
 
-          // // get past Transfer events from contract
+          // // get past transfer events from contract
           // contract.getPastEvents('Transfer', {fromBlock: 13589400, toBlock: 'latest'},
           //   (err, events) => { console.log(events) })
 
           }
 
-            // else, address does not have verified contract yet
+            // else, address does not have verified contract
             else {
                 console.log("No ABI for " + smartAddr + " yet.");
                 //start;
@@ -141,9 +143,9 @@
 
     }; // end of getABI function
 
-    // getABI();
 
   }); // end of server get
+
 
   // server post
   app.post("/", function(req, res){
