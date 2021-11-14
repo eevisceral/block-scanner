@@ -7,7 +7,7 @@
 
   // priv keys
   const API_KEY = process.env.etherscanKey;
-  const INFURA_KEY = process.env.infuraKey;
+  const INFURA_KEY = process.env.infuraKey2;
   const web3 = new Web3('wss://mainnet.infura.io/ws/v3/' + INFURA_KEY);
 
   // express server
@@ -79,8 +79,12 @@
                 fs.appendFile(smartConFile, contAddrSave, (error) => {
                   if (error) throw console.log("Error saving output file.");
                 })
+                console.log("Smart contract address saved.");
               }
-              console.log('Contract address already saved.')
+
+              else if (smartConFile.includes(contractADDR) === true) {
+              console.log('Contract address already logged.');
+              }
             });
 
           // call getABI function
