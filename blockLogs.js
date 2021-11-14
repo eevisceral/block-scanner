@@ -3,6 +3,7 @@
   const Web3 = require("web3")
   const axios = require('axios');
   const express = require("express");
+  const fs = require('fs')
 
   // priv keys
   const API_KEY = process.env.etherscanKey;
@@ -49,7 +50,6 @@
         // push data to array without duplicates
         if (txArray.includes(txHash) === false) txArray.push(txHash);
         if (numArray.includes(blockNum) === false) numArray.push(blockNum);
-        if (addrArray.includes(addr) === false) addrArray.push(addr);
 
         // get transaction receipt for latest tx
         var b = (txArray.length - 1);
@@ -67,6 +67,23 @@
            var contractADDR = ADDRESS;
            console.log(b + ". Proceeding to get contract ABI for: " + ADDRESS);
            console.log('\n');
+
+           // save address to text file for manual analysis
+           // if (addrArray.includes(contractADDR) === false) addrArray.push(contractADDR);
+           contAddrSave = (contractADDR + '\n');
+           smartConFile = 'logs/smartContracts.txt';
+            fs.readFile(smartConFile, 'utf8' , (error, data) => {
+              if (error) throw console.log("Error reading file.");
+
+              if (smartConFile.includes(contractADDR) === false) {
+                fs.appendFile(smartConFile, contAddrSave, (error) => {
+                  if (error) throw console.log("Error saving output file.");
+                })
+              }
+              console.log('Contract address already saved.')
+            });
+
+          // call getABI function
            getABI(ADDRESS);
          }
 
