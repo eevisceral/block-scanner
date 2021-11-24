@@ -58,7 +58,6 @@
 
          // check all transactions for smart contracts
          var txFrom = txReceipt.from;
-         var txTo = txReceipt.to;
          var ADDRESS = txReceipt.contractAddress;
          //console.log(txReceipt.transactionHash);
 
@@ -80,6 +79,9 @@
                   if (error) throw console.log("Error saving output file.");
                 })
                 console.log("Smart contract address saved.");
+                // call getABI function
+                 getABI(ADDRESS);
+                 console.log("Calling ABI...");
               }
 
               else if (smartConFile.includes(contractADDR) === true) {
@@ -87,8 +89,6 @@
               }
             });
 
-          // call getABI function
-           getABI(ADDRESS);
          }
 
          else if(!web3.utils.isAddress(ADDRESS)) {
