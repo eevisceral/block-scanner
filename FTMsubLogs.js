@@ -3,7 +3,6 @@
   const Web3 = require("web3");
   const axios = require('axios');
   const fs = require('fs');
-  const $ = require('jquery');
   // const express = require("express");
   // const { ethers } = require('ethers');
 
@@ -120,76 +119,6 @@
 
 
 
-  // function getABI(conDetails) {
-  //     const smartAddr = conDetails;
-  //     // const smartAddr = process.env.testADDR;
-  //
-  //     if(!web3.utils.isAddress(smartAddr)){
-  //       console.log("Not a valid smart contract address.")
-  //       return
-  //     }
-  //
-  //     // API call using axios
-  //     axios.get("https://api.ftmscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
-  //     // axios.get("https://api.testnet.ftmscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
-  //
-  //     .then(response => {
-  //       var result = response.data.result;
-  //
-  //       // if source code is verified, parse JSON
-  //       if(result != "Contract source code not verified"){
-  //         var contractABI = "";
-  //         contractABI = JSON.parse(response.data.result);
-  //
-  //
-  //       // if contractABI is not null, execute
-  //       if (contractABI != '') {
-  //
-  //         // print ABI to reveal unique functions, events, etc.
-  //         // console.log(contractABI);
-  //
-  //         // get contract details
-  //         const contractDetails = new web3.eth.Contract(contractABI, smartAddr)
-  //         // console.log(contractDetails);
-  //
-  //         // get name for given contract
-  //         contractDetails.methods.name().call({ from: smartAddr },
-  //           function (error, result) {
-  //             console.log("Contract Name: " + result)
-  //         });
-  //
-  //         // get symbol for given contract
-  //         contractDetails.methods.symbol().call({ from: smartAddr },
-  //           function (error, result) {
-  //             console.log("Ticker: " + result)
-  //         });
-  //
-  //         // get total token supply for given contract
-  //         contractDetails.methods.totalSupply().call({ from: smartAddr },
-  //           function (error, result) {
-  //             console.log("Total Supply: " + result)
-  //         });
-  //
-  //         // // get past transfer events from contract
-  //         // contract.getPastEvents('Transfer', {
-  //         // fromBlock: 13589400,
-  //         // toBlock: 'latest'},
-  //         //   (err, events) => { console.log(events) })
-  //
-  //         }
-  //       }
-  //         // else, address does not have verified contract
-  //         else {
-  //           console.log("No ABI for " + smartAddr + " yet.");
-  //           return
-  //         }
-  //
-  //         }); // end of axios get request
-  //
-  //   }; // end of getABI function
-
-
-
   function getABI(conDetails) {
       const smartAddr = conDetails;
       // const smartAddr = process.env.testADDR;
@@ -198,46 +127,65 @@
         console.log("Not a valid smart contract address.")
         return
       }
-        // API call using Jquery
-        $.getJSON("https://api.ftmscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY, function (data) {
-        var contractABI = "";
-            contractABI = JSON.parse(data.result);
 
-            if (contractABI != ''){
+      // API call using axios
+      axios.get("https://api.ftmscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+      // axios.get("https://api.testnet.ftmscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
 
-                // print ABI to reveal unique functions, events, etc.
-                // console.log(contractABI);
+      .then(response => {
+        var result = response.data.result;
 
-                // get contract details
-                const contractDetails = new web3.eth.Contract(contractABI, smartAddr)
-                // console.log(contractDetails);
+        // if source code is verified, parse JSON
+        if(result != "Contract source code not verified"){
+          var contractABI = "";
+          contractABI = JSON.parse(response.data.result);
 
-                // get name for given contract
-                contractDetails.methods.name().call({ from: smartAddr },
-                  function (error, result) {
-                    console.log("Contract Name: " + result)
-                });
 
-                // get symbol for given contract
-                contractDetails.methods.symbol().call({ from: smartAddr },
-                  function (error, result) {
-                    console.log("Ticker: " + result)
-                });
+        // if contractABI is not null, execute
+        if (contractABI != '') {
 
-                // get total token supply for given contract
-                contractDetails.methods.totalSupply().call({ from: smartAddr },
-                  function (error, result) {
-                    console.log("Total Supply: " + result)
-                });
+          // print ABI to reveal unique functions, events, etc.
+          // console.log(contractABI);
 
-            } else {
-                console.log("Contract ABI not yet verified.");
-            }
+          // get contract details
+          const contractDetails = new web3.eth.Contract(contractABI, smartAddr)
+          // console.log(contractDetails);
 
-        }); // end of Jquery get request
-        
+          // get name for given contract
+          contractDetails.methods.name().call({ from: smartAddr },
+            function (error, result) {
+              console.log("Contract Name: " + result)
+          });
+
+          // get symbol for given contract
+          contractDetails.methods.symbol().call({ from: smartAddr },
+            function (error, result) {
+              console.log("Ticker: " + result)
+          });
+
+          // get total token supply for given contract
+          contractDetails.methods.totalSupply().call({ from: smartAddr },
+            function (error, result) {
+              console.log("Total Supply: " + result)
+          });
+
+          // // get past transfer events from contract
+          // contract.getPastEvents('Transfer', {
+          // fromBlock: 13589400,
+          // toBlock: 'latest'},
+          //   (err, events) => { console.log(events) })
+
+          }
+        }
+          // else, address does not have verified contract
+          else {
+            console.log("No ABI for " + smartAddr + " yet.");
+            return
+          }
+
+          }); // end of axios get request
+
     }; // end of getABI function
-
 
 
   // }); // end of server get
