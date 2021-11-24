@@ -1,18 +1,19 @@
   // init packages
   require('dotenv').config();
-  const Web3 = require("web3")
+  const Web3 = require("web3");
   const axios = require('axios');
   const express = require("express");
-  const fs = require('fs')
+  const fs = require('fs');
+  const { ethers } = require('ethers');
 
   // priv keys
   const API_KEY = process.env.etherscanKey;
   const INFURA_KEY = process.env.infuraKey2;
   const web3 = new Web3('wss://mainnet.infura.io/ws/v3/' + INFURA_KEY);
 
-  // express server
-  const app = express();
-  app.use(express.static("public"));
+  // // express server
+  // const app = express();
+  // app.use(express.static("public"));
 
   // arrays to store data
   var numArray = [];
@@ -20,9 +21,9 @@
   var addrArray = [];
   var b = 0;
 
-  // server get response
-  app.get("/", function(req, res){
-    res.sendFile(__dirname + "/index.html");
+  // // server get response
+  // app.get("/", function(req, res){
+  //   res.sendFile(__dirname + "/index.html");
 
     // subscribe to block logs
     const subs = web3.eth.subscribe('logs', {
@@ -45,7 +46,6 @@
       try {
         var txHash = txData.transactionHash;
         var blockNum = txData.blockNumber;
-        var addr = txData.address;
 
         // push data to array without duplicates
         if (txArray.includes(txHash) === false) txArray.push(txHash);
@@ -80,7 +80,7 @@
                 })
                 console.log("Smart contract address saved.");
                 // call getABI function
-                 getABI(ADDRESS);
+                 getABI(contractADDR);
                  console.log("Calling ABI...");
               }
 
@@ -88,6 +88,7 @@
               console.log('Contract address already logged.');
               }
             });
+
 
          }
 
@@ -177,16 +178,16 @@
     }; // end of getABI function
 
 
-  }); // end of server get
-
-
-  // server post
-  app.post("/", function(req, res){
-    res.send("...")
-  }); // end of server post
-
-
-  // server port
-  app.listen(1503, function(){
-    console.log("Server has started on Port 1503.");
-  }); // end of server port
+  // }); // end of server get
+  //
+  //
+  // // server post
+  // app.post("/", function(req, res){
+  //   res.send("...")
+  // }); // end of server post
+  //
+  //
+  // // server port
+  // app.listen(1503, function(){
+  //   console.log("Server has started on Port 1503.");
+  // }); // end of server port
