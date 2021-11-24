@@ -7,13 +7,13 @@
   // const { ethers } = require('ethers');
 
   // connect to web3 websocket
-  const API_KEY = process.env.harmonyKey;
-  const MAIN_URL = 'wss://ws.s0.t.hmny.io';
-  const TEST_URL = 'wss://ws.s0.b.hmny.io';
+  const API_KEY = process.env.ftmscanKey;
+  const MAIN_URL = 'wss://wsapi.fantom.network/';
+  const TEST_URL = 'wss://wsapi.testnet.fantom.network/';
 
   const web3 = new Web3(new Web3.providers.WebsocketProvider(MAIN_URL))
   const version = web3.version.api;
-
+  
   // // express server
   // const app = express();
   // app.use(express.static("public"));
@@ -56,7 +56,6 @@
         // push data to array without duplicates
         if (txArray.includes(txHash) === false) txArray.push(txHash);
         if (numArray.includes(blockNum) === false) numArray.push(blockNum);
-        // console.log('Txs Scanned: ' + txArray.length);
 
         // get transaction receipt for latest tx
         var b = (txArray.length - 1);
@@ -79,7 +78,7 @@
            // save address to text file for manual analysis
            // if (addrArray.includes(contractADDR) === false) addrArray.push(contractADDR);
            contAddrSave = (contractADDR + '\n');
-           smartConFile = './logs/ONEContracts.txt';
+           smartConFile = './logs/FTMContracts.txt';
             fs.readFile(smartConFile, 'utf8' , (error, data) => {
               if (error) throw console.log("Error reading file.");
 
@@ -89,8 +88,8 @@
                 })
                 console.log("Contract address saved!");
                 // call getABI function
-                // getABI(contractADDR);
-                // console.log("Attempting to retrieve contract ABI from block explorer...");
+                getABI(contractADDR);
+                console.log("Attempting to retrieve contract ABI from block explorer...");
               }
 
               else if (smartConFile.includes(contractADDR) === true) {
@@ -129,8 +128,9 @@
         return
       }
 
-      // call harmony explorer API
-      axios.get("https://explorer.harmony.one//api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+      // call ftmscan API
+      axios.get("https://api.ftmscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+      // axios.get("https://api.testnet.ftmscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
 
       .then(response => {
         var result = response.data.result;

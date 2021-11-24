@@ -2,20 +2,18 @@
   require('dotenv').config();
   const Web3 = require("web3");
   const axios = require('axios');
-  const express = require("express");
   const fs = require('fs');
-  const { ethers } = require('ethers');
+  // const express = require("express");
+  // const { ethers } = require('ethers');
 
-  // priv keys
+  // connect to web3 websocket
   const API_KEY = process.env.snowtraceKey;
-  // const INFURA_KEY = process.env.infuraKey1;
-  //const web3 = new Web3('wss://mainnet.infura.io/ws/v3/' + INFURA_KEY);
   const MAIN_URL = 'wss://api.avax.network/ext/bc/C/ws';
   const TEST_URL = 'wss://api.avax-test.network/ext/bc/C/ws';
 
   const web3 = new Web3(new Web3.providers.WebsocketProvider(TEST_URL))
-
-
+  const version = web3.version.api;
+  
   // // express server
   // const app = express();
   // app.use(express.static("public"));
@@ -133,6 +131,7 @@
       // call snowtrace API
       // axios.get("https://api.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
       axios.get("https://api.testnet.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+
       .then(response => {
         var result = response.data.result;
 

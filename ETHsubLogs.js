@@ -2,14 +2,17 @@
   require('dotenv').config();
   const Web3 = require("web3");
   const axios = require('axios');
-  const express = require("express");
   const fs = require('fs');
-  const { ethers } = require('ethers');
+  // const express = require("express");
+  // const { ethers } = require('ethers');
 
-  // priv keys
+  // connect to web3 websocket
   const API_KEY = process.env.etherscanKey;
   const INFURA_KEY = process.env.infuraKey2;
+
   const web3 = new Web3('wss://mainnet.infura.io/ws/v3/' + INFURA_KEY);
+  // const web3 = new Web3('wss://kovan.infura.io/ws/v3/' + INFURA_KEY);
+  const version = web3.version.api;
 
   // // express server
   // const app = express();
@@ -58,13 +61,13 @@
 
         // check all transactions for smart contracts
         var txFrom = txReceipt.from;
-        var ADDRESS = txReceipt.contractAddress;
+        var contAddr = txReceipt.contractAddress;
         //console.log(txReceipt.transactionHash);
 
          // if smart contract, call getABI function
-         if(web3.utils.isAddress(ADDRESS)) {
-           var contractADDR = ADDRESS;
-            console.log(b + ". Proceeding to save contract address: " + ADDRESS);
+         if(web3.utils.isAddress(contAddr)) {
+           var contractADDR = contAddr;
+            console.log(b + ". Proceeding to save contract address: " + contAddr);
             console.log('\n');
 
            // save address to text file for manual analysis
@@ -92,8 +95,8 @@
 
          }
 
-         else if(!web3.utils.isAddress(ADDRESS)) {
-           // console.log(b + ". " + ADDRESS + " is not a contract address.");
+         else if(!web3.utils.isAddress(contAddr)) {
+           // console.log(b + ". " + contAddr + " is not a contract address.");
          }
 
          else {
