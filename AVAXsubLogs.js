@@ -3,6 +3,7 @@
   const Web3 = require("web3");
   const axios = require('axios');
   const fs = require('fs');
+  const $ = require('jquery');
   // const express = require("express");
   // const { ethers } = require('ethers');
 
@@ -13,7 +14,7 @@
 
   const web3 = new Web3(new Web3.providers.WebsocketProvider(TEST_URL))
   const version = web3.version.api;
-  
+
   // // express server
   // const app = express();
   // app.use(express.static("public"));
@@ -118,6 +119,78 @@
     }) // end of web3.eth.logs subscription
 
 
+  //
+  // function getABI(conDetails) {
+  //     const smartAddr = conDetails;
+  //     // const smartAddr = process.env.testADDR;
+  //
+  //     if(!web3.utils.isAddress(smartAddr)){
+  //       console.log("Not a valid smart contract address.")
+  //       return
+  //     }
+  //
+  //     // call snowtrace API
+  //     // axios.get("https://api.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+  //     axios.get("https://api.testnet.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+  //
+  //     .then(response => {
+  //       var result = response.data.result;
+  //
+  //       // if source code is verified, parse JSON
+  //       if(result != "Contract source code not verified"){
+  //         var contractABI = "";
+  //         contractABI = JSON.parse(response.data.result);
+  //
+  //
+  //       // if contractABI is not null, execute
+  //       if (contractABI != '') {
+  //
+  //         // print ABI to reveal unique functions, events, etc.
+  //         // console.log(contractABI);
+  //
+  //         // get contract details
+  //         const contractDetails = new web3.eth.Contract(contractABI, smartAddr)
+  //         // console.log(contractDetails);
+  //
+  //         // get name for given contract
+  //         contractDetails.methods.name().call({ from: smartAddr },
+  //           function (error, result) {
+  //             console.log("Contract Name: " + result)
+  //         });
+  //
+  //         // get symbol for given contract
+  //         contractDetails.methods.symbol().call({ from: smartAddr },
+  //           function (error, result) {
+  //             console.log("Ticker: " + result)
+  //         });
+  //
+  //         // get total token supply for given contract
+  //         contractDetails.methods.totalSupply().call({ from: smartAddr },
+  //           function (error, result) {
+  //             console.log("Total Supply: " + result)
+  //         });
+  //
+  //         // // get past transfer events from contract
+  //         // contract.getPastEvents('Transfer', {
+  //         // fromBlock: 13589400,
+  //         // toBlock: 'latest'},
+  //         //   (err, events) => { console.log(events) })
+  //
+  //         }
+  //       }
+  //         // else, address does not have verified contract
+  //         else {
+  //           console.log("No ABI for " + smartAddr + " yet.");
+  //           return
+  //         }
+  //
+  //         }); // end of axios get request
+  //
+  //   }; // end of getABI function
+
+
+
+
 
   function getABI(conDetails) {
       const smartAddr = conDetails;
@@ -127,65 +200,48 @@
         console.log("Not a valid smart contract address.")
         return
       }
+        // API call using Jquery
+        $.getJSON("https://api.testnet.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY, function (data) {
+        var contractABI = "";
+            contractABI = JSON.parse(data.result);
 
-      // call snowtrace API
-      // axios.get("https://api.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
-      axios.get("https://api.testnet.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+            if (contractABI != ''){
 
-      .then(response => {
-        var result = response.data.result;
+                // print ABI to reveal unique functions, events, etc.
+                // console.log(contractABI);
 
-        // if source code is verified, parse JSON
-        if(result != "Contract source code not verified"){
-          var contractABI = "";
-          contractABI = JSON.parse(response.data.result);
+                // get contract details
+                const contractDetails = new web3.eth.Contract(contractABI, smartAddr)
+                // console.log(contractDetails);
 
+                // get name for given contract
+                contractDetails.methods.name().call({ from: smartAddr },
+                  function (error, result) {
+                    console.log("Contract Name: " + result)
+                });
 
-        // if contractABI is not null, execute
-        if (contractABI != '') {
+                // get symbol for given contract
+                contractDetails.methods.symbol().call({ from: smartAddr },
+                  function (error, result) {
+                    console.log("Ticker: " + result)
+                });
 
-          // print ABI to reveal unique functions, events, etc.
-          // console.log(contractABI);
+                // get total token supply for given contract
+                contractDetails.methods.totalSupply().call({ from: smartAddr },
+                  function (error, result) {
+                    console.log("Total Supply: " + result)
+                });
 
-          // get contract details
-          const contractDetails = new web3.eth.Contract(contractABI, smartAddr)
-          // console.log(contractDetails);
-
-          // get name for given contract
-          contractDetails.methods.name().call({ from: smartAddr },
-            function (error, result) {
-              console.log("Contract Name: " + result)
-          });
-
-          // get symbol for given contract
-          contractDetails.methods.symbol().call({ from: smartAddr },
-            function (error, result) {
-              console.log("Ticker: " + result)
-          });
-
-          // get total token supply for given contract
-          contractDetails.methods.totalSupply().call({ from: smartAddr },
-            function (error, result) {
-              console.log("Total Supply: " + result)
-          });
-
-          // // get past transfer events from contract
-          // contract.getPastEvents('Transfer', {
-          // fromBlock: 13589400,
-          // toBlock: 'latest'},
-          //   (err, events) => { console.log(events) })
-
-          }
-        }
-          // else, address does not have verified contract
-          else {
-            console.log("No ABI for " + smartAddr + " yet.");
-            return
-          }
-
-          }); // end of axios get request
+            } else {
+                console.log("Contract ABI not yet verified.");
+            }
+            
+        }); // end of Jquery get request
 
     }; // end of getABI function
+
+
+
 
 
   // }); // end of server get
