@@ -7,13 +7,13 @@
   const { ethers } = require('ethers');
 
   // priv keys
-  // const API_KEY = process.env.etherscanKey;
+  const API_KEY = process.env.snowtraceKey;
   // const INFURA_KEY = process.env.infuraKey1;
   //const web3 = new Web3('wss://mainnet.infura.io/ws/v3/' + INFURA_KEY);
-  const MAIN_URL = 'https://api.avax.network/ext/bc/C/rpc';
-  const TEST_URL = 'https://api.avax-test.network/ext/bc/C/rpc';
+  const MAIN_URL = 'wss://api.avax.network/ext/bc/C/ws';
+  const TEST_URL = 'wss://api.avax-test.network/ext/bc/C/ws';
 
-  const web3 = new Web3(new Web3.providers.HttpProvider(MAIN_URL))
+  const web3 = new Web3(new Web3.providers.WebsocketProvider(TEST_URL))
 
 
   // // express server
@@ -24,105 +24,100 @@
   var numArray = [];
   var txArray = [];
   var addrArray = [];
+  var indexArray = [];
   var b = 0;
-  var txHashArray = [];
 
   // // server get response
   // app.get("/", function(req, res){
   //   res.sendFile(__dirname + "/index.html");
 
-  // get data from new block
-  web3.eth.getBlock('latest', true)
-  .then(function (blockData) {
-      latestBlock = blockData.number;
-      txArray = blockData.transactions;
-      txArrayLength = txArray.length;
-        // console.log("Latest Block Number: " + latestBlock);
+    // subscribe to block logs
+  web3.eth.subscribe('logs', {
+       // fromBlock: '13606200',
+    },
+    function (error, result) {
+      if (error) console.log(error);
+    })
 
-      //get transaction info from latest block
-      web3.eth.getTransactionFromBlock(latestBlock, 2)
-      .then(function (txFromBlock) {
-        blockTxTo = txFromBlock.to;
-        blockHash = txFromBlock.hash;
-        blockTxFrom = txFromBlock.from;
+    // fires once on sucessful subscription
+    .on("connected", function(subscriptionId){
+        console.log("ID: " + subscriptionId);
+        console.log("\n");
+        console.log("Scanning all incoming transactions...");
+        console.log("\n");
+    })
 
-        console.log("Transaction Info from Block Number " + latestBlock);
-        console.log("Tx Array Length: " + txArrayLength);
+    // collect data from logs
+    .on("data", async (txData) => {
+      try {
+        var txHash = txData.transactionHash;
+        var blockNum = txData.blockNumber;
+        var logsIndex = txData.logIndex;
+        // console.log(logsIndex);
+
+        // push data to array without duplicates
+        if (txArray.includes(txHash) === false) txArray.push(txHash);
+        if (numArray.includes(blockNum) === false) numArray.push(blockNum);
+
+        // get transaction receipt for latest tx
+        var b = (txArray.length - 1);
+        var txReceipt = await web3.eth.getTransactionReceipt(txArray[b]);
+          // console.log(txReceipt);
+
+        // check all transactions for smart contracts
+        var txFrom = txReceipt.from;
+        var txTo = txReceipt.to;
+        var contAddr = txReceipt.contractAddress;
+
+          // console.log(txReceipt.transactionHash);
+
+         // if smart contract, call getABI function
+         if(web3.utils.isAddress(contAddr)) {
+           var contractADDR = contAddr;
+           console.log(b + ". Proceeding to save contract address: " + contAddr);
+           console.log('\n');
+
+           // save address to text file for manual analysis
+           // if (addrArray.includes(contractADDR) === false) addrArray.push(contractADDR);
+           contAddrSave = (contractADDR + '\n');
+           smartConFile = './logs/AVAXContracts.txt';
+            fs.readFile(smartConFile, 'utf8' , (error, data) => {
+              if (error) throw console.log("Error reading file.");
+
+              if (smartConFile.includes(contractADDR) === false) {
+                fs.appendFile(smartConFile, contAddrSave, (error) => {
+                  if (error) throw console.log("Error saving output file.");
+                })
+                console.log("Contract address saved!");
+                // call getABI function
+                getABI(contractADDR);
+                console.log("Attempting to retrieve contract ABI from block explorer...");
+              }
+
+              else if (smartConFile.includes(contractADDR) === true) {
+              console.log('Contract address already saved.');
+              }
+            });
 
 
-          // loop getTxReceipt for entire length of block's transcation count
-          for(var t = 0; t <= txArrayLength - 1; t++) {
-          web3.eth.getTransactionReceipt(txArray[t].hash, (error, txReceipt) => {
-            if (error) {
-              console.log("Error getting txReceipt");
-            }
-            else if(blockTxTo == ''){
-              // console.log("Analyzing txReceipt for: " + txReceipt.contractAddress);
-              b++;
-            }
-            else {
-              // console.log("Tx is not a contract creation.");
-              b++;
-            }
-          })
+         }
+
+         else if(!web3.utils.isAddress(contAddr)) {
+           // console.log(b + ". " + contAddr + " is not a contract address.");
+         }
+
+         else {
+           console.log("... No address found.");
+         }
 
 
-          
-          .then(function (analyzeTxReceipt) {
-              txAddr = analyzeTxReceipt.contractAddress;
-              txGasUsed = analyzeTxReceipt.cumulativeGasUsed;
-              txHash = analyzeTxReceipt.transactionHash;
-              txTo = analyzeTxReceipt.to;
-              // console.log(analyzeTxReceipt);
+      }
+      catch (error) {
+        console.log("Error caught...");
+      }
 
 
-                if(web3.utils.isAddress(txAddr) && txTo == '') {
-                  contractADDR = txAddr;
-                  console.log("Tx " + b + ": Proceeding to get contract ABI for: " + contractADDR);
-                  console.log("Hash: " + txHash);
-                  console.log('\n');
-                  // if contract, save address to text file for manual analysis
-                  contAddrSave = (contractADDR + '\n');
-                  smartConFile = 'logs/AVAXContracts.txt';
-                   fs.readFile(smartConFile, 'utf8' , (error, data) => {
-                     if (error) throw console.log("Error reading file.");
-
-                     if (smartConFile.includes(contractADDR) === false) {
-                       fs.appendFile(smartConFile, contAddrSave, (error) => {
-                         if (error) throw console.log("Error saving output file.");
-                       })
-                       console.log("Smart contract address saved.");
-                       // call getABI function
-                       getABI(contractADDR);
-                       console.log("Calling ABI...");
-                     } else if (smartConFile.includes(contractADDR) === true) {
-                       console.log('Contract address already logged.');
-                     }
-                   }); // end if statement;
-
-                } else if(!web3.utils.isAddress(txAddr)) {
-                    console.log("Tx " + b + ": " + txAddr + " is not a contract address.");
-                    console.log("Hash: " + txHash);
-                } else {
-                    console.log("No address found.");
-                    console.log("Hash: " + txHash);
-                }; // end else statement;
-
-          }) // end analyzeTxReceipt;
-
-         }; //end for loop;
-
-        }) // end txFromBlock;
-
-    .catch((err) => {
-
-      console.log("Error getting transaction info from this block.")
-      console.log('\n');
-
-    }); // end catch;
-
-  }); // end blockData;
-
+    }) // end of web3.eth.logs subscription
 
 
 
@@ -135,9 +130,10 @@
         return
       }
 
-      // call etherscan API
-      axios.get("https://api.etherscan.io/api?module=contract&action=getabi&address="
-      + smartAddr + "&apikey=" + API_KEY).then(response => {
+      // call snowtrace API
+      // axios.get("https://api.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+      axios.get("https://api.testnet.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+      .then(response => {
         var result = response.data.result;
 
         // if source code is verified, parse JSON

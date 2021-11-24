@@ -8,8 +8,13 @@
 
   // priv keys
   const API_KEY = process.env.etherscanKey;
-  const INFURA_KEY = process.env.infuraKey2;
-  const web3 = new Web3('wss://mainnet.infura.io/ws/v3/' + INFURA_KEY);
+  // const INFURA_KEY = process.env.infuraKey1;
+  //const web3 = new Web3('wss://mainnet.infura.io/ws/v3/' + INFURA_KEY);
+  const MAIN_URL = 'wss://ws.s0.t.hmny.io';
+  const TEST_URL = 'wss://ws.s0.b.hmny.io';
+
+  const web3 = new Web3(new Web3.providers.WebsocketProvider(MAIN_URL))
+
 
   // // express server
   // const app = express();
@@ -19,6 +24,7 @@
   var numArray = [];
   var txArray = [];
   var addrArray = [];
+  var indexArray = [];
   var b = 0;
 
   // // server get response
@@ -30,7 +36,7 @@
        // fromBlock: '13606200',
     },
     function (error, result) {
-      if (error) console.log("There was an error when subscribing to web3.");
+      if (error) console.log(error);
     })
 
     // fires once on sucessful subscription
@@ -46,31 +52,36 @@
       try {
         var txHash = txData.transactionHash;
         var blockNum = txData.blockNumber;
+        var logsIndex = txData.logIndex;
+        // console.log(logsIndex);
 
         // push data to array without duplicates
         if (txArray.includes(txHash) === false) txArray.push(txHash);
         if (numArray.includes(blockNum) === false) numArray.push(blockNum);
+        // console.log('Txs Scanned: ' + txArray.length);
 
         // get transaction receipt for latest tx
         var b = (txArray.length - 1);
         var txReceipt = await web3.eth.getTransactionReceipt(txArray[b]);
-        // console.log(txReceipt);
+          // console.log(txReceipt);
 
         // check all transactions for smart contracts
         var txFrom = txReceipt.from;
-        var ADDRESS = txReceipt.contractAddress;
-        //console.log(txReceipt.transactionHash);
+        var txTo = txReceipt.to;
+        var contAddr = txReceipt.contractAddress;
+
+          // console.log(txReceipt.transactionHash);
 
          // if smart contract, call getABI function
-         if(web3.utils.isAddress(ADDRESS)) {
-           var contractADDR = ADDRESS;
-            console.log(b + ". Proceeding to save contract address: " + ADDRESS);
-            console.log('\n');
+         if(web3.utils.isAddress(contAddr)) {
+           var contractADDR = contAddr;
+           console.log(b + ". Proceeding to save contract address: " + contAddr);
+           console.log('\n');
 
            // save address to text file for manual analysis
            // if (addrArray.includes(contractADDR) === false) addrArray.push(contractADDR);
            contAddrSave = (contractADDR + '\n');
-           smartConFile = './logs/ETHContracts.txt';
+           smartConFile = './logs/ONEContracts.txt';
             fs.readFile(smartConFile, 'utf8' , (error, data) => {
               if (error) throw console.log("Error reading file.");
 
@@ -80,20 +91,20 @@
                 })
                 console.log("Contract address saved!");
                 // call getABI function
-                getABI(contractADDR);
-                console.log("Attempting to retrieve contract ABI from block explorer...");
+                // getABI(contractADDR);
+                // console.log("Attempting to retrieve contract ABI from block explorer...");
               }
 
               else if (smartConFile.includes(contractADDR) === true) {
-                console.log('Contract address already saved.');
+              console.log('Contract address already saved.');
               }
             });
 
 
          }
 
-         else if(!web3.utils.isAddress(ADDRESS)) {
-           // console.log(b + ". " + ADDRESS + " is not a contract address.");
+         else if(!web3.utils.isAddress(contAddr)) {
+           // console.log(b + ". " + contAddr + " is not a contract address.");
          }
 
          else {
@@ -120,8 +131,8 @@
         return
       }
 
-      // call etherscan API
-      axios.get("https://api.etherscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+      // call harmony explorer API
+      axios.get("https://explorer.harmony.one//api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
       .then(response => {
         var result = response.data.result;
 

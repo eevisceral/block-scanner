@@ -139,8 +139,8 @@ start = web3.eth.subscribe('newBlockHeaders', function (error, result) {})
 async function getABI() {
 
 // Find smartAddr with verified source code, call etherscan to get contractABI
-axios.get("https://api.etherscan.io/api?module=contract&action=getabi&address="
-+ smartAddr + "&apikey=" + API_KEY).then(response => {
+axios.get("https://api.etherscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+.then(response => {
 
   // parse json response
   var contractABI = "";
