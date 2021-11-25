@@ -179,7 +179,7 @@
 
           }) // end of axios get request
 
-          .catch((err) => {
+          .catch((error) => {
 
             console.log(error)
             console.log('\n');
