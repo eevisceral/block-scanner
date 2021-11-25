@@ -177,7 +177,14 @@
             return
           }
 
-          }); // end of axios get request
+          }) // end of axios get request
+
+          .catch((err) => {
+
+            console.log(error)
+            console.log('\n');
+
+          });
 
     }; // end of getABI function
 

@@ -3,7 +3,6 @@
   const Web3 = require("web3");
   const axios = require('axios');
   const fs = require('fs');
-  const $ = require('jquery');
   // const express = require("express");
   // const { ethers } = require('ethers');
 
@@ -184,7 +183,14 @@
             return
           }
 
-          }); // end of axios get request
+          }) // end of axios get request
+
+          .catch((err) => {
+
+            console.log(error)
+            console.log('\n');
+
+          });
 
     }; // end of getABI function
 
