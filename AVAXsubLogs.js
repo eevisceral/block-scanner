@@ -128,9 +128,14 @@
         return
       }
 
-      // call snowtrace API
-      // axios.get("https://api.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
-      axios.get("https://testnet.snowtrace.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+      // call mainnet snowtrace API
+      // axios.get("https://api.snowtrace.io/api?module=contract&action=getabi&address="
+      // + smartAddr + "&apikey=" + API_KEY)
+
+      // call testnet snowtrace API
+      axios.get("https://testnet.snowtrace.io/api?module=contract&action=getabi&address="
+      + smartAddr + "&apikey=" + API_KEY)
+
       .then(response => {
         var result = response.data.result;
 

@@ -130,7 +130,8 @@
       }
 
       // call harmony explorer API
-      axios.get("https://explorer.harmony.one//api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+      axios.get("https://explorer.harmony.one//api?module=contract&action=getabi&address="
+      + smartAddr + "&apikey=" + API_KEY)
 
       .then(response => {
         var result = response.data.result;

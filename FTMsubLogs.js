@@ -128,9 +128,13 @@
         return
       }
 
-      // API call using axios
-      axios.get("https://api.ftmscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
-      // axios.get("https://api.testnet.ftmscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+      // call mainnet ftmscan API
+      axios.get("https://api.ftmscan.io/api?module=contract&action=getabi&address="
+      + smartAddr + "&apikey=" + API_KEY)
+
+      // call testnet ftmscan API
+      // axios.get("https://api.testnet.ftmscan.io/api?module=contract&action=getabi&address="
+      // + smartAddr + "&apikey=" + API_KEY)
 
       .then(response => {
         var result = response.data.result;

@@ -124,8 +124,14 @@
         return
       }
 
-      // call etherscan API
-      axios.get("https://api.etherscan.io/api?module=contract&action=getabi&address=" + smartAddr + "&apikey=" + API_KEY)
+      // call mainnet etherscan API
+      axios.get("https://api.etherscan.io/api?module=contract&action=getabi&address="
+      + smartAddr + "&apikey=" + API_KEY)
+
+      // call testnet etherscan API
+      // axios.get("https://api.kovan.etherscan.io/api?module=contract&action=getabi&address="
+      // + smartAddr + "&apikey=" + API_KEY)
+
       .then(response => {
         var result = response.data.result;
 
