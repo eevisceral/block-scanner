@@ -73,11 +73,10 @@
          if(web3.utils.isAddress(contAddr)) {
            var contractADDR = contAddr;
            console.log(b + ". Proceeding to save contract address: " + contAddr);
-           console.log('\n');
 
            // save address to text file for manual analysis
-           // if (addrArray.includes(contractADDR) === false) addrArray.push(contractADDR);
-           contAddrSave = (contractADDR + '\n');
+           if (addrArray.includes(contractADDR) === false) addrArray.push(contractADDR);
+           contAddrSave = (contractADDR + ', \n');
            smartConFile = './logs/FTMContracts.txt';
             fs.readFile(smartConFile, 'utf8' , (error, data) => {
               if (error) throw console.log("Error reading file.");
@@ -86,10 +85,21 @@
                 fs.appendFile(smartConFile, contAddrSave, (error) => {
                   if (error) throw console.log("Error saving output file.");
                 })
-                console.log("Contract address saved!");
+
+                console.log("Contract address saved to file.");
+                  console.log('\n');
+
                 // call getABI function
-                getABI(contractADDR);
-                console.log("Attempting to retrieve contract ABI from block explorer...");
+                if (addrArray.length >= 10) {
+                  getABI(addrArray);
+                }
+
+                else {
+                  console.log(addrArray.length + ' contract addresses in array.')
+                  console.log("Still scanning...");
+                    console.log('\n');
+                }
+
               }
 
               else if (smartConFile.includes(contractADDR) === true) {
@@ -106,12 +116,14 @@
 
          else {
            console.log("... No address found.");
+            console.log('\n');
          }
 
 
       }
       catch (error) {
         console.log("Error caught...");
+          console.log('\n');
       }
 
 
@@ -119,13 +131,19 @@
 
 
 
-  function getABI(conDetails) {
-      const smartAddr = conDetails;
-      // const smartAddr = process.env.testADDR;
+  function getABI(conArray) {
+      var conArrLength = conArray.length;
+      var a = conArrLength - 10;
 
+      const smartAddr = conArray[a]; // process.env.ftmtest;
+
+      console.log("Attempting to retrieve contract ABI from block explorer.");
+
+      // if address is not a smart contract, log
       if(!web3.utils.isAddress(smartAddr)){
         console.log("Not a valid smart contract address.")
-        return
+          console.log('\n');
+          return
       }
 
       // call mainnet ftmscan API
@@ -136,68 +154,84 @@
       // axios.get("https://api.testnet.ftmscan.io/api?module=contract&action=getabi&address="
       // + smartAddr + "&apikey=" + API_KEY)
 
-      .then(response => {
-        var result = response.data.result;
+      .then(function (response) {
+
+        var res = response.data.result;
 
         // if source code is verified, parse JSON
-        if(result != "Contract source code not verified"){
+        if (res = !'') {
           var contractABI = "";
           contractABI = JSON.parse(response.data.result);
 
+          if (contractABI != '') {
 
-        // if contractABI is not null, execute
-        if (contractABI != '') {
+            // print ABI to reveal contract functions we can use - TODO: add filesave functionality*
+            console.log(contractABI);
+            console.log('\n');
 
-          // print ABI to reveal unique functions, events, etc.
-          // console.log(contractABI);
+            // get contract details
+            const contractDetails = new web3.eth.Contract(contractABI, smartAddr)
+              // console.log(contractDetails);
 
-          // get contract details
-          const contractDetails = new web3.eth.Contract(contractABI, smartAddr)
-          // console.log(contractDetails);
+            // get name for given contract
+            contractDetails.methods.name().call({ from: smartAddr },
+              function (error, result) {
+                console.log("Contract Name: " + result)
+                  console.log('\n');
+            });
 
-          // get name for given contract
-          contractDetails.methods.name().call({ from: smartAddr },
-            function (error, result) {
-              console.log("Contract Name: " + result)
-          });
+            // get symbol for given contract
+            contractDetails.methods.symbol().call({ from: smartAddr },
+              function (error, result) {
+                console.log("Ticker: " + result)
+                  console.log('\n');
+            });
 
-          // get symbol for given contract
-          contractDetails.methods.symbol().call({ from: smartAddr },
-            function (error, result) {
-              console.log("Ticker: " + result)
-          });
+            // get total token supply for given contract
+            contractDetails.methods.totalSupply().call({ from: smartAddr },
+              function (error, result) {
+                console.log("Total Supply: " + result)
+                  console.log('\n');
+            });
 
-          // get total token supply for given contract
-          contractDetails.methods.totalSupply().call({ from: smartAddr },
-            function (error, result) {
-              console.log("Total Supply: " + result)
-          });
+          } // end of if contract ABI
 
-          // // get past transfer events from contract
-          // contract.getPastEvents('Transfer', {
-          // fromBlock: 13589400,
-          // toBlock: 'latest'},
-          //   (err, events) => { console.log(events) })
-
-          }
-        }
-          // else, address does not have verified contract
           else {
-            console.log("No ABI for " + smartAddr + " yet.");
-            return
+            console.log("No ABI for " + smartAddr + ".");
+              console.log('\n');
+              return
           }
 
+        } // end of if response not null
 
-          }) // end of axios get request
+        else if (res = 'Contract source code not verified') {
+          console.log(res)
+            console.log('\n')
+            return
+        }
+
+        else {
+          console.log('Null API response.')
+            console.log('\n')
+            return
+        };
+
+
+
+      }) // end of axios get .then request
 
           .catch((error) => {
 
             console.log(error)
-            console.log('\n');
+              console.log('\n');
 
-          });
+          })
 
-    }; // end of getABI function
+
+
+
+    }; // end of getABI() function
+
 
 
   // }); // end of server get
