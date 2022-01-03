@@ -89,16 +89,16 @@
                 console.log("Contract address saved to file.");
                   console.log('\n');
 
-                // call getABI function
-                if (addrArray.length >= 1) {
-                  getABI(addrArray);
-                }
-
-                else {
-                  console.log(addrArray.length + ' contract addresses in array.')
-                  console.log("Still scanning...");
-                    console.log('\n');
-                }
+                // // call getABI function
+                // if (addrArray.length >= 1) {
+                //   getABI(addrArray);
+                // }
+                //
+                // else {
+                //   console.log(addrArray.length + ' contract addresses in array.')
+                //   console.log("Still scanning...");
+                //     console.log('\n');
+                // }
 
               }
 
