@@ -80,14 +80,14 @@
            contAddrSave = (contractADDR + ', \n');
            smartConFile = './logs/AVAXContracts.txt';
             fs.readFile(smartConFile, 'utf8' , (error, data) => {
-              if (error) throw console.log("Error reading file.");
+              if (error) throw console.error("Error reading file.");
 
               if (smartConFile.includes(contractADDR) === false) {
                 fs.appendFile(smartConFile, contAddrSave, (error) => {
-                  if (error) throw console.log("Error saving output file.");
+                  if (error) throw console.error("Error saving output file.");
                 })
 
-                console.log("Contract address saved to file.");
+                console.log('%c Contract address saved to file.', 'background: #222; color:#93c47d');
                   console.log('\n');
 
                 // call getABI function
@@ -97,14 +97,14 @@
 
                 else {
                   console.log(addrArray.length + ' contract addresses in array.')
-                  console.log("Still scanning...");
+                  console.log('%c Still scanning...', 'background: #222; color:#93c47d');
                     console.log('\n');
                 }
 
               }
 
               else if (smartConFile.includes(contractADDR) === true) {
-              console.log('Contract address already saved.');
+              console.log('%c Contract address already saved.', 'background: #222; color:#93c47d');
               }
             });
 
@@ -116,14 +116,14 @@
          }
 
          else {
-           console.log("... No address found.");
+           console.warn("... No address found.");
             console.log('\n');
          }
 
 
       }
       catch (error) {
-        console.log("Error caught...");
+        console.warn("Error caught...");
           console.log('\n');
       }
 
@@ -142,7 +142,7 @@
 
       // if address is not a smart contract, log
       if(!web3.utils.isAddress(smartAddr)){
-        console.log("Not a valid smart contract address.")
+        console.error("Not a valid smart contract address.")
           console.log('\n');
           return
       }
@@ -156,19 +156,18 @@
       // + smartAddr + "&apikey=" + API_KEY)
 
       .then(function (response) {
-
+        var contractABI = "";
         var res = response.data.result;
 
         // if source code is verified, parse JSON
         if (res = !'') {
-          var contractABI = "";
           contractABI = JSON.parse(response.data.result);
 
           if (contractABI != '') {
 
             // print ABI to reveal contract functions we can use - TODO: add filesave functionality*
-              console.log(contractABI);
-              console.log('\n');
+            console.log(contractABI);
+            console.log('\n');
 
             // get contract details
             const contractDetails = new web3.eth.Contract(contractABI, smartAddr)
@@ -198,7 +197,7 @@
           } // end of if contract ABI
 
           else {
-            console.log("No ABI for " + smartAddr + ".");
+            console.error("No ABI for " + smartAddr + ".");
               console.log('\n');
               return
           }
@@ -206,13 +205,13 @@
         } // end of if response not null
 
         else if (res = 'Contract source code not verified') {
-          console.log(res)
+          console.error(res)
             console.log('\n')
             return
         }
 
         else {
-          console.log('Null API response.')
+          console.error('Null API response.')
             console.log('\n')
             return
         };
@@ -223,7 +222,7 @@
 
           .catch((error) => {
 
-            console.log(error)
+            console.error(error)
               console.log('\n');
 
           })
