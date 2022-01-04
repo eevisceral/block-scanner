@@ -71,7 +71,7 @@
           // console.log(txReceipt.transactionHash);
 
          // if smart contract, call getABI function
-         if(web3.utils.isAddress(contAddr)) {
+         if(web3.utils.isAddress(contAddr) && addrArray.includes(contAddr) === false) {
            var contractADDR = contAddr;
            console.log(b + ". Proceeding to save contract address: " + contAddr);
            console.log('\n');
@@ -106,7 +106,7 @@
          }
 
          else {
-           console.log("... No address found.");
+           console.log("...");
          }
 
 

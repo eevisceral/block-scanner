@@ -70,13 +70,13 @@
           // console.log(txReceipt.transactionHash);
 
          // if smart contract, call getABI function
-         if(web3.utils.isAddress(contAddr)) {
+         if(web3.utils.isAddress(contAddr) && addrArray.includes(contAddr) === false) {
            var contractADDR = contAddr;
            console.log(b + ". Proceeding to save contract address: " + contAddr);
 
            // save address to text file for manual analysis
            if (addrArray.includes(contractADDR) === false) addrArray.push(contractADDR);
-           contAddrSave = (contractADDR + ', \n');
+           contAddrSave = (contractADDR + '\n');
            smartConFile = './logs/AVAXContracts.txt';
             fs.readFile(smartConFile, 'utf8' , (error, data) => {
               if (error) throw console.error("Error reading file.");
@@ -115,8 +115,7 @@
          }
 
          else {
-           console.warn("... No address found.");
-            console.log('\n');
+           console.log("...");
          }
 
 
