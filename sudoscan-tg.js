@@ -6,6 +6,10 @@ const API_KEY = process.env.etherscanKey2;
 const INFURA_KEY = process.env.infuraKey2;
 const web3 = new Web3('wss://mainnet.infura.io/ws/v3/' + INFURA_KEY);
 const version = web3.version.api;
+const TG_BOT = process.env.TG_API;
+const TG_CHAT = process.env.chatID;
+const TG_ALPHABOT = process.env.ALPHA_TG_API;
+const TG_ALPHACHAT = process.env.alphaChatID;
 
 const SUDO_FACTORY = '0xb16c1342e617a5b6e4b631eb114483fdb289c0a4'
 
@@ -199,9 +203,9 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
         var age = 'Collection Age: Less than 1hr 👀 👀 👀';
         var bDelta = 'Block Δ: ' + delta;
         console.log(age + "\n" + bDelta);
-          sendMessageDiscordHot(pool, collection, name, count, age, bDelta);
-          sendMessageDiscord(pool, collection, name, count, age, bDelta);
-          // return
+          sendMessageAlphaTG(pool, collection, name, count, age, bDelta);
+          sendMessageTG(pool, collection, name, count, age, bDelta);
+          return
           // console.log("Sending to Telegram");
           // getABI(contract);
       }
@@ -210,9 +214,9 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
           var age = 'Collection Age: Less than 30m 🔥🔥🔥';
           var bDelta = 'Block Δ: ' + delta;
           console.log(age + "\n" + bDelta);
-            sendMessageDiscordHot(pool, collection, name, count, age, bDelta);
-            sendMessageDiscord(pool, collection, name, count, age, bDelta);
-            // return
+            sendMessageAlphaTG(pool, collection, name, count, age, bDelta);
+            sendMessageTG(pool, collection, name, count, age, bDelta);
+            return
             // console.log("Sending to Telegram");
             // getABI(contract);
         }
@@ -221,9 +225,9 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
           var age = 'Collection Age: Less than 15m 💎💎💎';
           var bDelta = 'Block Delta: ' + delta;
           console.log(age + "\n" + bDelta);
-            sendMessageDiscordHot(pool, collection, name, count, age, bDelta);
-            sendMessageDiscord(pool, collection, name, count, age, bDelta);
-            // return
+            sendMessageAlphaTG(pool, collection, name, count, age, bDelta);
+            sendMessageTG(pool, collection, name, count, age, bDelta);
+            return
             // console.log("Sending to Telegram");
             // getABI(contract);
         }
@@ -233,7 +237,7 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
         //   var bDelta = 'Block Δ: ' + delta;
         //   console.log(age + "\n" + bDelta);
         //   // console.log("Not sending to Telegram...");
-        //   // sendMessageDiscordHot(pool, collection, name, count, age, bDelta);
+        //   // sendMessageTG(pool, collection, name, count, age, bDelta);
         //   //return
         // }
 
@@ -241,30 +245,30 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
           var age = 'Age: Less than ~12hrs 🥱🥱🥱';
           var bDelta = 'Block Δ: ' + delta;
           console.log(age + "\n" + bDelta);
-            sendMessageDiscord(pool, collection, name, count, age, bDelta);
-            // return
+            sendMessageTG(pool, collection, name, count, age, bDelta);
+            return
         }
 
         else if (response.status === 200 && delta >= 6500) {
           var age = 'Age: Older than ~24hrs 💤💤💤';
           var bDelta = 'Block Δ: ' + delta;
           console.log(age + "\n" + bDelta);
-            sendMessageDiscord(pool, collection, name, count, age, bDelta);
-            // return
+            sendMessageTG(pool, collection, name, count, age, bDelta);
+            return
         }
 
         else if (response.status === 200 && delta >= 3000 && delta < 6500) {
           var age = 'Age: Less than ~24hrs 😴😴😴';
           var bDelta = 'Block Δ: ' + delta;
           console.log(age + "\n" + bDelta);
-            sendMessageDiscord(pool, collection, name, count, age, bDelta);
-            // return
+            sendMessageTG(pool, collection, name, count, age, bDelta);
+            return
         }
 
         else if (status === 0) {
           // console.error(response);
           console.error('🚫  checkAge() Rate Limited.');
-          return
+        return
         }
 
         else {
@@ -344,7 +348,7 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
 
 
 
-  function sendMessageDiscordHot(pool, collection, name, count, age, bDelta) {
+  function sendMessageTG(pool, collection, name, count, age, bDelta) {
     var pool = pool;
     var collection = collection;
     var name = name;
@@ -356,25 +360,27 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
 
       axios({
         method: 'post',
-        url: 'https://discord.com/api/webhooks/1023320492054171658/kTdZGEb8fkp_d3-MDFNJty9OqMwN42NJHbTfsofrT1T7WY3yvbMXzPp7EBCeRZk-VaxB',
+        url: `https://api.telegram.org/bot${TG_BOT}/sendMessage`,
         data: {
-            content: message,
+            chat_id: TG_CHAT,
+            text: message,
+            // parse_mode: 'HTML',
         }
       })
 
       .then(data => {
-        console.log('✅ Sent to Hot Channel')
+        console.log('✅ Sent to Telegram')
         //return
       })
 
       .catch(error => {
-        console.error('⛔️ Could not send to Hot Channel')
+        console.error('⛔️ Could not send to Telegram')
         //return
       })
 
   };
 
-  function sendMessageDiscord(pool, collection, name, count, age, bDelta) {
+  function sendMessageAlphaTG(pool, collection, name, count, age, bDelta) {
     var pool = pool;
     var collection = collection;
     var name = name;
@@ -386,19 +392,21 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
 
       axios({
         method: 'post',
-        url: `https://discord.com/api/webhooks/1023305000597848134/x83GnmspY1ZABmbvmE8Ng8TnKlS6Vj-kX691ZFoQm456R4YTX7RAek3Zekwvfv1sVf27`,
+        url: `https://api.telegram.org/bot${TG_ALPHABOT}/sendMessage`,
         data: {
-          content: message,
+            chat_id: TG_ALPHACHAT,
+            text: message,
+            // parse_mode: 'HTML',
         }
       })
 
       .then(data => {
-        console.log('✅ Sent to Pools Channel')
+        console.log('✅ Sent to Alpha Telegram')
         //return
       })
 
       .catch(error => {
-        console.error('⛔️ Could not send to Pools Channel')
+        console.error('⛔️ Could not send to Alpha Telegram')
         //return
       })
 
