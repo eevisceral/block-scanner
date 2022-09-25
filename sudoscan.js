@@ -1,6 +1,7 @@
 require('dotenv').config();
 const Web3 = require("web3");
 const axios = require('axios');
+const Discord = require('discord.js');
 
 const API_KEY = process.env.etherscanKey2;
 const INFURA_KEY = process.env.infuraKey2;
@@ -199,7 +200,7 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
         var age = 'Collection Age: Less than 1hr 👀 👀 👀';
         var bDelta = 'Block Δ: ' + delta;
         console.log(age + "\n" + bDelta);
-          sendMessageDiscordHot(pool, collection, name, count, age, bDelta);
+          //sendMessageDiscordHot(pool, collection, name, count, age, bDelta);
           sendMessageDiscord(pool, collection, name, count, age, bDelta);
           // return
           // console.log("Sending to Telegram");
@@ -210,7 +211,7 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
           var age = 'Collection Age: Less than 30m 🔥🔥🔥';
           var bDelta = 'Block Δ: ' + delta;
           console.log(age + "\n" + bDelta);
-            sendMessageDiscordHot(pool, collection, name, count, age, bDelta);
+            //sendMessageDiscordHot(pool, collection, name, count, age, bDelta);
             sendMessageDiscord(pool, collection, name, count, age, bDelta);
             // return
             // console.log("Sending to Telegram");
@@ -221,7 +222,7 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
           var age = 'Collection Age: Less than 15m 💎💎💎';
           var bDelta = 'Block Delta: ' + delta;
           console.log(age + "\n" + bDelta);
-            sendMessageDiscordHot(pool, collection, name, count, age, bDelta);
+            //sendMessageDiscordHot(pool, collection, name, count, age, bDelta);
             sendMessageDiscord(pool, collection, name, count, age, bDelta);
             // return
             // console.log("Sending to Telegram");
@@ -344,35 +345,50 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
 
 
 
-  function sendMessageDiscordHot(pool, collection, name, count, age, bDelta) {
-    var pool = pool;
-    var collection = collection;
-    var name = name;
-    var count = count;
-    var age = age;
-    var delta = bDelta;
-
-    var message = `| Collection Name: ${name} \n | Token IDs: (${count} total) \n | ${age} \n | ${delta} \n\n | 🛟  New Sudo Pool: ${pool} \n | 🖼  Collection Address: ${collection} \n | 🔗  URL: https://sudoswap.xyz/#/browse/buy/${collection}`;
-
-      axios({
-        method: 'post',
-        url: 'https://discord.com/api/webhooks/1023320492054171658/kTdZGEb8fkp_d3-MDFNJty9OqMwN42NJHbTfsofrT1T7WY3yvbMXzPp7EBCeRZk-VaxB',
-        data: {
-            content: message,
-        }
-      })
-
-      .then(data => {
-        console.log('✅ Sent to Hot Channel')
-        //return
-      })
-
-      .catch(error => {
-        console.error('⛔️ Could not send to Hot Channel')
-        //return
-      })
-
-  };
+  // function sendMessageDiscordHot(pool, collection, name, count, age, bDelta) {
+  //   var pool = pool;
+  //   var collection = collection;
+  //   var name = name;
+  //   var count = count;
+  //   var age = age;
+  //   var delta = bDelta;
+  //   var url = `https://sudoswap.xyz/#/browse/buy/${collection}`;
+  //   var icon = 'https://pbs.twimg.com/profile_images/1542272594686054401/vOi42ixp_400x400.jpg';
+  //
+  // // var message = `| Collection Name: ${name} \n | Token IDs: (${count} total) \n | ${age} \n | ${delta} \n\n | 🛟  New Sudo Pool: ${pool} \n | 🖼  Collection Address: ${collection} \n | 🔗  URL: https://sudoswap.xyz/#/browse/buy/${collection}`;
+  //
+  // const linkEmbed = new Discord.EmbedBuilder()
+  // .setAuthor({ name: `${name}`, iconURL: `${icon}`,  url: `${url}` })
+  // .setThumbnail(`${icon}`)
+  // .addFields(
+  //     { name: "**__Pooled NFTs:__** ", value: `${count} total`, inline: true },
+  //     { name: "**__Age:__** ", value: `${age}`, inline: true },
+  //     { name: "**__Block Δ:__** ", value: `${delta}`, inline: true },
+  // )
+  // .addFields({ name: "**New Sudo Pool:** ", value: `${pool}`, inline: true })
+  // .addFields({ name: "**Collection Address:** ", value: `${collection}`, inline: true })
+  // .addFields({ name: "**URL:** ", value: `${url}`, inline: true })
+  // .setFooter({ text: "• Pandora v1.1 - Sudo Swap Listener •" })
+  //
+  //     axios({
+  //       method: 'post',
+  //       url: 'https://discord.com/api/webhooks/1023320492054171658/kTdZGEb8fkp_d3-MDFNJty9OqMwN42NJHbTfsofrT1T7WY3yvbMXzPp7EBCeRZk-VaxB',
+  //       data: {
+  //           embeds: [linkEmbed],
+  //       }
+  //     })
+  //
+  //     .then(data => {
+  //       console.log('✅ Sent to Hot Channel')
+  //       //return
+  //     })
+  //
+  //     .catch(error => {
+  //       console.error('⛔️ Could not send to Hot Channel')
+  //       return
+  //     })
+  //
+  // };
 
   function sendMessageDiscord(pool, collection, name, count, age, bDelta) {
     var pool = pool;
@@ -381,25 +397,42 @@ function checkAge(conAddr, block, poolAddy, collectionAddress, tokenName, tokenC
     var count = count;
     var age = age;
     var delta = bDelta;
+    var url = `https://sudoswap.xyz/#/browse/buy/${collection}`;
+    var icon = 'https://pbs.twimg.com/profile_images/1542272594686054401/vOi42ixp_400x400.jpg';
 
-    var message = `| Collection Name: ${name} \n | Token IDs: (${count} total) \n | ${age} \n | ${delta} \n\n | 🛟  New Sudo Pool: ${pool} \n | 🖼  Collection Address: ${collection} \n | 🔗  URL: https://sudoswap.xyz/#/browse/buy/${collection}`;
+    //var message = `| Collection Name: ${name} \n | Token IDs: (${count} total) \n | ${age} \n | ${delta} \n\n | 🛟  New Sudo Pool: ${pool} \n | 🖼  Collection Address: ${collection} \n | 🔗  URL: https://sudoswap.xyz/#/browse/buy/${collection}`;
+
+    const linkEmbed = new Discord.EmbedBuilder()
+    .setAuthor({ name: `${name}`, iconURL: `${icon}`,  url: `${url}` })
+    .setThumbnail(`${icon}`)
+    .addFields(
+        { name: "**__Pooled NFTs:__** ", value: `${count} total`, inline: true },
+        { name: "**__Age:__** ", value: `${age}`, inline: true },
+        { name: "**__Block Δ:__** ", value: `${delta}`, inline: true },
+    )
+    .addFields({ name: "**New Sudo Pool:** ", value: `${pool}`, inline: true })
+    .addFields({ name: "**Collection Address:** ", value: `${collection}`, inline: true })
+    .addFields({ name: "**URL:** ", value: `${url}`, inline: true })
+    .setFooter({ text: "• Pandora v1.1 - Sudo Swap Listener •" })
 
       axios({
         method: 'post',
+        // https://discord.com/api/webhooks/1023369316642603028/qmHGR3SnG32Nz8TNMswRbTFsrkknYdEQKgyqCA2DJo569JCEqRDmO8hi_gY2IPhshmYt
         url: `https://discord.com/api/webhooks/1023305000597848134/x83GnmspY1ZABmbvmE8Ng8TnKlS6Vj-kX691ZFoQm456R4YTX7RAek3Zekwvfv1sVf27`,
         data: {
-          content: message,
+          embeds: [linkEmbed],
         }
       })
 
       .then(data => {
-        console.log('✅ Sent to Pools Channel')
+        console.log('✅ Sent to Pools Channel');
         //return
       })
 
       .catch(error => {
-        console.error('⛔️ Could not send to Pools Channel')
-        //return
+        console.error(error);
+        console.error('⛔️ Could not send to Pools Channel');
+        return
       })
 
   };
